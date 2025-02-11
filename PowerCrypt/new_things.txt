@@ -1,0 +1,10 @@
+NamedAttributeArgumentAst
+ParamBlockAst
+ScriptBlockAst
+AttributeAst
+BinaryExpressionAst
+HashtableAst
+CommandAst
+AssignmentStatementAst
+TypeExpressionsAst
+TypeConstraintAst
