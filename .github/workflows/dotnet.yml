@@ -1,0 +1,73 @@
+name: .NET Windows Release
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Publish
+        run: dotnet publish --configuration Release --self-contained true -r win-x86 -p:PublishSingleFile=true -p:EnableReadyToRun=true -o publish_output
+
+      - name: Find Published Executable
+        run: |
+          $exe_path = Get-ChildItem -Path publish_output -Filter "*.exe" | Select-Object -ExpandProperty FullName
+          echo "Executable Path: $exe_path"
+          echo "EXE_PATH=$exe_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: publish_output/
+
+      # delete
+      - name: Delete old AutoBuild release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: AutoBuild
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # we need release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: AutoBuild
+          release_name: AutoBuild
+          body: "Automated Build Release"
+          draft: false
+          prerelease: false
+
+      # upload
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.EXE_PATH }}
+          asset_name: PowerCrypt.exe
+          asset_content_type: application/octet-stream
