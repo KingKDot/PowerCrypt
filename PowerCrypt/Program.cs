@@ -18,7 +18,7 @@ namespace PowerCrypt
                 //file_location = "C:\\Users\\this1\\Desktop\\Software\\Somalifuscator-Powershell-Edition\\main.ps1";
 
                 file_location = AnsiConsole.Prompt(new TextPrompt<string>("[bold blue]Enter the location of the powershell code to obfuscate\n->[/]")
-                        .Validate(path => System.IO.File.Exists(path) ? ValidationResult.Success() : ValidationResult.Error("[bold red]File does not exist or path input is incorrect.[/]"))
+                        .Validate(path => File.Exists(path) ? ValidationResult.Success() : ValidationResult.Error("[bold red]File does not exist or path input is incorrect.[/]"))
                 );
 
             }

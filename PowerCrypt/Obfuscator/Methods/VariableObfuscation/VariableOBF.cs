@@ -15,6 +15,17 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
             "$switch", "$this", "$script", "$kdot_"
         };
 
+        private static readonly string[] choices = new[]
+        {
+            "[bool][bool]", "[bool][char]", "[bool][int]", "[bool][string]", "[bool][double]",
+            "[bool][decimal]", "[bool][byte]", "[bool][timespan]", "[bool][datetime]",
+            "(9999 -eq 9999)", "([math]::Round([math]::PI) -eq (4583 - 4580))",
+            "[Math]::E -ne [Math]::PI", "[bool](![bool]$null)",
+            "!!!![bool][bool][bool][bool][bool][bool]", "![bool]$null", "![bool]$False",
+            "[bool][System.Collections.ArrayList]", "[bool][System.Collections.CaseInsensitiveComparer]",
+            "[bool][System.Collections.Hashtable]"
+        };
+
         private static readonly HashSet<string> BadStart = new HashSet<string> { "$env:", "$script:", "$kdot_" };
         private static readonly string GoodChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static readonly Random Random = new();
@@ -150,21 +161,13 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
 
         public static string ObfuscateTrue()
         {
-            var choices = new[]
-            {
-                "[bool][bool]", "[bool][char]", "[bool][int]", "[bool][string]", "[bool][double]",
-                "[bool][decimal]", "[bool][byte]", "[bool][timespan]", "[bool][datetime]",
-                "(9999 -eq 9999)", "([math]::Round([math]::PI) -eq (4583 - 4580))",
-                "[Math]::E -ne [Math]::PI", "[bool](![bool]$null)",
-                "!!!![bool][bool][bool][bool][bool][bool]", "![bool]$null", "![bool]$False",
-                "[bool][System.Collections.ArrayList]", "[bool][System.Collections.CaseInsensitiveComparer]",
-                "[bool][System.Collections.Hashtable]"
-            };
-
             return $"({choices[Random.Next(choices.Length)]})";
         }
 
-        public static string ObfuscateFalse() => "$false";
+        public static string ObfuscateFalse()
+        {
+            return $"(!({choices[Random.Next(choices.Length)]}))";
+        }
         public static string ObfuscateNull() => "$null";
     }
 }
