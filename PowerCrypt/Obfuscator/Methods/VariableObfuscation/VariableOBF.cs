@@ -6,12 +6,12 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
     {
         private static readonly HashSet<string> BadVars = new HashSet<string>
         {
-            "$$", "$?", "$^", "$_", "$args", "$ConsoleFileName", "$EnabledExperimentalFeatures", "$Error",
-            "$Event", "$EventArgs", "$EventSubscriber", "$ExecutionContext", "$foreach", "$HOME", "$Host",
-            "$input", "$IsCoreCLR", "$IsLinux", "$IsMacOS", "$IsWindows", "$LASTEXITCODE", "$Matches",
-            "$MyInvocation", "$NestedPromptLevel", "$PID", "$PROFILE", "$PSBoundParameters", "$PSCmdlet",
-            "$PSCommandPath", "$PSCulture", "$PSDebugContext", "$PSEdition", "$PSHOME", "$PSItem", "$PSScriptRoot",
-            "$PSSenderInfo", "$PSUICulture", "$PSVersionTable", "$PWD", "$Sender", "$ShellId", "$StackTrace",
+            "$$", "$?", "$^", "$_", "$args", "$consolefilename", "$enabledexperimentalfeatures", "$error",
+            "$event", "$eventargs", "$eventsubscriber", "$executioncontext", "$foreach", "$home", "$host",
+            "$input", "$iscoreclr", "$islinux", "$ismacos", "$iswindows", "$lastexitcode", "$matches",
+            "$myinvocation", "$nestedpromptlevel", "$pid", "$profile", "$psboundparameters", "$pscmdlet",
+            "$pscommandpath", "$psculture", "$psdebugcontext", "$psedition", "$pshome", "$psitem", "$psscriptroot",
+            "$pssenderinfo", "$psuiculture", "$psversiontable", "$pwd", "$sender", "$shellid", "$stacktrace",
             "$switch", "$this", "$script", "$kdot_"
         };
 
@@ -40,7 +40,7 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
                 }
             }
 
-            if (BadVars.Contains(variable))
+            if (BadVars.Contains(variable.ToLower()))
             {
                 return variable;
             }
