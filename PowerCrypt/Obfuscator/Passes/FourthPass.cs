@@ -47,11 +47,6 @@ namespace PowerCrypt.Obfuscator.Passes
                         continue;
                     }
 
-                    if (isFunction)
-                    {
-                        Console.WriteLine(((FunctionDefinitionAst)node).Name);
-                    }
-
                     string obfuscatedText = WrapOBF.ObfuscateWithWrap(node.Extent.Text);
                     allReplacements.Add(new ReplacementMapUniversal
                     {

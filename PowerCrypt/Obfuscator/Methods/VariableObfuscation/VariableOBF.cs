@@ -12,7 +12,7 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
             "$myinvocation", "$nestedpromptlevel", "$pid", "$profile", "$psboundparameters", "$pscmdlet",
             "$pscommandpath", "$psculture", "$psdebugcontext", "$psedition", "$pshome", "$psitem", "$psscriptroot",
             "$pssenderinfo", "$psuiculture", "$psversiontable", "$pwd", "$sender", "$shellid", "$stacktrace",
-            "$switch", "$this", "$script", "$kdot_"
+            "$switch", "$this", "$script", "$kdot_", "$erroractionpreference", "$progresspreference",
         };
 
         private static readonly string[] choices = new[]
@@ -26,7 +26,7 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
             "[bool][System.Collections.Hashtable]"
         };
 
-        private static readonly HashSet<string> BadStart = new HashSet<string> { "$env:", "$script:", "$kdot_" };
+        private static readonly HashSet<string> BadStart = new HashSet<string> { "$env:", "$script:", "$kdot_", "$global:" };
         private static readonly string GoodChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static readonly Random Random = new();
 
@@ -34,7 +34,7 @@ namespace PowerCrypt.Obfuscator.Methods.VariableObfuscation
         {
             foreach (var badPrefix in BadStart)
             {
-                if (variable.StartsWith(badPrefix, StringComparison.Ordinal))
+                if (variable.StartsWith(badPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return variable;
                 }
