@@ -4,6 +4,7 @@ using PowerCrypt.Obfuscator.Methods.Counters;
 using PowerCrypt.Obfuscator.Methods.GeneralControlFlowPostOBF;
 using PowerCrypt.Settings;
 using Spectre.Console;
+using System.Diagnostics;
 using System.Management.Automation.Language;
 
 namespace PowerCrypt.Obfuscator.Passes
@@ -20,23 +21,48 @@ namespace PowerCrypt.Obfuscator.Passes
                       .Where(stmt => !stmt.FindAll(inner => (inner is IfStatementAst || inner is ForStatementAst || inner is ForEachStatementAst) && inner != stmt, searchNestedScriptBlocks: true).Any() &&
                                      !stmt.FindAll(inner => inner is ReturnStatementAst, searchNestedScriptBlocks: true).Any());
 
-            foreach (var node in nodes)
+            foreach (var function in Globals.FunctionNamesToSkip)
             {
-                if (isFunction && ((FunctionDefinitionAst)node).Name.Equals(Globals.CompressFunctionName))
+                foreach (var node in nodes)
                 {
-                    continue;
-                }
+                    bool shouldSkip = false;
 
-                string obfuscatedText = WrapOBF.ObfuscateWithWrap(node.Extent.Text);
-                allReplacements.Add(new ReplacementMapUniversal
-                {
-                    StartOffset = node.Extent.StartOffset,
-                    Length = node.Extent.Text.Length,
-                    OriginalName = node.Extent.Text,
-                    Text = obfuscatedText,
-                    Type = node.GetType().Name,
-                    RequiresKeyword = false
-                });
+                    if (isFunction && ((FunctionDefinitionAst)node).Name.Equals(Globals.CompressFunctionName))
+                    {
+                        continue;
+                    }
+
+                    foreach (var function2 in Globals.FunctionNamesToSkip)
+                    {
+                        if (isFunction && ((FunctionDefinitionAst)node).Name.Equals(function2))
+                        {
+                            Console.WriteLine(((FunctionDefinitionAst)node).Name);
+                            shouldSkip = true;
+                            break;
+                        }
+                    }
+
+                    if (shouldSkip)
+                    {
+                        continue;
+                    }
+
+                    if (isFunction)
+                    {
+                        Console.WriteLine(((FunctionDefinitionAst)node).Name);
+                    }
+
+                    string obfuscatedText = WrapOBF.ObfuscateWithWrap(node.Extent.Text);
+                    allReplacements.Add(new ReplacementMapUniversal
+                    {
+                        StartOffset = node.Extent.StartOffset,
+                        Length = node.Extent.Text.Length,
+                        OriginalName = node.Extent.Text,
+                        Text = obfuscatedText,
+                        Type = node.GetType().Name,
+                        RequiresKeyword = false
+                    });
+                }
             }
 
             return allReplacements;

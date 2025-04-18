@@ -5,6 +5,12 @@ namespace PowerCrypt.Obfuscator.Helpers.globals
     public static class Globals
     {
         public static string CompressFunctionName { get; set; } = string.Empty;
+
+        public static HashSet<string> FunctionNamesToSkip { get; set; } = new HashSet<string>
+               {
+                   "CheckValidationResult"
+               };
+
         public static List<string> UsedVariables { get; set; } = new List<string>();
         public static List<string> UsedFunctions { get; set; } = new List<string>();
 

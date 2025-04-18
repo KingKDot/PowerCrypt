@@ -18,6 +18,15 @@ namespace PowerCrypt.Obfuscator.Methods.FunctionObfuscation
                 Globals.CompressFunctionName = randomString;
             }
 
+            foreach (var function in Globals.FunctionNamesToSkip)
+            {
+                if (function == ObfuscateFunction)
+                {
+                    Console.WriteLine("Function name is in the skip list, changing it to a random string");
+                    return ObfuscateFunction;
+                }
+            }
+
             //add backticks to captial letters
             var modifiedString = new System.Text.StringBuilder();
             foreach (char c in randomString)
