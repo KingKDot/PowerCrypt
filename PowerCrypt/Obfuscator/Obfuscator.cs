@@ -5,6 +5,7 @@ using PowerCrypt.Obfuscator.Methods.StaticNumberObfuscation;
 using PowerCrypt.Obfuscator.Methods.StringObfuscation;
 using PowerCrypt.Obfuscator.Methods.VariableObfuscation;
 using PowerCrypt.Obfuscator.Passes;
+using PowerCrypt.Settings;
 using Spectre.Console;
 using System.Management.Automation.Language;
 using System.Text;
@@ -16,11 +17,17 @@ namespace PowerCrypt.Obfuscator
 
         public static string ObfuscateScript(string scriptContent)
         {
-            scriptContent = PrePass.DoPrePrePass(scriptContent);
+            if (AppSettings.EnablePrePass)
+            {
+                scriptContent = PrePass.DoPrePrePass(scriptContent);
+            }
 
             //return scriptContent;
 
-            scriptContent = RemoveCommentsAndJunk(scriptContent);
+            if (AppSettings.RemoveComments || AppSettings.RemoveEmptyLines)
+            {
+                scriptContent = RemoveCommentsAndJunk(scriptContent);
+            }
             //return scriptContent;
 
             ScriptBlockAst ast = ParseScript(scriptContent);
@@ -30,12 +37,27 @@ namespace PowerCrypt.Obfuscator
             var parameterReplacementMap = new Dictionary<string, string>();
             var stringReplacementMap = new Dictionary<string, string>();
             var numberReplacementMap = new Dictionary<string, string>();
-            var functionNamesIgnore = new HashSet<string> { "CheckValidationResult" };
+            var functionNamesIgnore = AppSettings.FunctionNamesToIgnore;
 
-            ProcessFunctionDefinitions(ast, functionReplacementMap, parameterReplacementMap, variableReplacementMap);
-            ProcessVariables(ast, variableReplacementMap, parameterReplacementMap);
-            ProcessStrings(ast, stringReplacementMap);
-            ProcessNumbers(ast, numberReplacementMap);
+            if (AppSettings.ObfuscateFunctions)
+            {
+                ProcessFunctionDefinitions(ast, functionReplacementMap, parameterReplacementMap, variableReplacementMap);
+            }
+            
+            if (AppSettings.ObfuscateVariables)
+            {
+                ProcessVariables(ast, variableReplacementMap, parameterReplacementMap);
+            }
+            
+            if (AppSettings.ObfuscateStrings)
+            {
+                ProcessStrings(ast, stringReplacementMap);
+            }
+            
+            if (AppSettings.ObfuscateNumbers)
+            {
+                ProcessNumbers(ast, numberReplacementMap);
+            }
 
             var allReplacements = FirstPass.CollectFirstPassReplacements(ast, functionReplacementMap, parameterReplacementMap, variableReplacementMap, stringReplacementMap, numberReplacementMap, functionNamesIgnore);
 
@@ -129,6 +151,12 @@ namespace PowerCrypt.Obfuscator
             foreach (var variable in variableAsts)
             {
                 var varName = variable.VariablePath.UserPath;
+                
+                if (AppSettings.VariableNamesToIgnore.Contains(varName))
+                {
+                    continue;
+                }
+                
                 if (!variableReplacementMap.ContainsKey(varName) && !parameterReplacementMap.ContainsKey(varName))
                 {
                     string variableObfuscated = VariableOBF.ObfuscateVariable(variable.Extent.Text, false);
@@ -147,6 +175,12 @@ namespace PowerCrypt.Obfuscator
             foreach (var numberAst in numberAsts)
             {
                 var numberText = numberAst.Extent.Text;
+                
+                if (int.TryParse(numberText, out int number) && AppSettings.NumbersToIgnore.Contains(number))
+                {
+                    continue;
+                }
+                
                 if (!numberReplacementMap.ContainsKey(numberText))
                 {
                     numberReplacementMap[numberText] = NumberOBF.ObfuscateNumber(numberText);
@@ -165,6 +199,13 @@ namespace PowerCrypt.Obfuscator
             foreach (var stringAst in stringAsts)
             {
                 var stringText = stringAst.Extent.Text;
+                var actualString = stringAst.Value;
+
+                if (actualString.Length < AppSettings.MinStringLengthToObfuscate || 
+                    AppSettings.StringsToIgnore.Contains(actualString))
+                {
+                    continue;
+                }
 
                 if (!stringReplacementMap.ContainsKey(stringText))
                 {

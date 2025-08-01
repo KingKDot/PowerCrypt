@@ -45,10 +45,18 @@ namespace PowerCrypt.Obfuscator.Passes
                 string newBareWordName;
                 if (isFunctionCall)
                 {
+                    if (!AppSettings.ObfuscateCommands || !AppSettings.ObfuscateBuiltInCommands)
+                    {
+                        continue;
+                    }
                     newBareWordName = CommandOBF.ObfuscateCommand(bareword.Extent.Text);
                 }
                 else
                 {
+                    if (!AppSettings.ObfuscateBareWords || !AppSettings.ObfuscateCommonBareWords)
+                    {
+                        continue;
+                    }
                     newBareWordName = CommandOBF.ObfuscateCommonBareWord(bareword.Extent.Text);
                 }
 
@@ -69,6 +77,11 @@ namespace PowerCrypt.Obfuscator.Passes
 
             foreach (var binary in binaryExpressionAsts)
             {
+                if (!AppSettings.EnableMixedBooleanArithmetic)
+                {
+                    break;
+                }
+
                 if (binary is BinaryExpressionAst binaryAst)
                 {
                     var left = binaryAst.Left;

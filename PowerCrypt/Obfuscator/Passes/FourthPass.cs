@@ -14,6 +14,12 @@ namespace PowerCrypt.Obfuscator.Passes
         private static List<ReplacementMapUniversal> CollectReplacements(ScriptBlockAst ast, bool isFunction)
         {
             var allReplacements = new List<ReplacementMapUniversal>();
+            
+            if (!AppSettings.EnableControlFlowObfuscation || !AppSettings.WrapWithControlFlow)
+            {
+                return allReplacements;
+            }
+            
             var nodes = isFunction
                 ? ast.FindAll(a => a is FunctionDefinitionAst, searchNestedScriptBlocks: true)
                       .Where(func => !func.FindAll(inner => inner is FunctionDefinitionAst && inner != func, searchNestedScriptBlocks: true).Any())
