@@ -1,0 +1,31 @@
+{
+    "PrintToScreen": true,
+    "EnablePrePass": true,
+    "InsertDecryptFunction": true,
+    "DecryptFunctionName": "DecodeAndDecompressString",
+    "ProcessExpandableStrings": true,
+    "RemoveComments": true,
+    "RemoveEmptyLines": true,
+    "ObfuscateFunctions": true,
+    "ObfuscateVariables": true,
+    "ObfuscateStrings": true,
+    "MinStringLengthToObfuscate": 3,
+    "ObfuscateNumbers": true,
+    "ObfuscateCommands": true,
+    "ObfuscateBuiltInCommands": true,
+    "ObfuscateBareWords": true,
+    "ObfuscateCommonBareWords": true,
+    "EnableControlFlowObfuscation": true,
+    "WrapWithControlFlow": true,
+    "EnableMixedBooleanArithmetic": true,
+    "FunctionNamesToIgnore": ["CheckValidationResult"],
+    "VariableNamesToIgnore": [
+        "ErrorActionPreference",
+        "VerbosePreference",
+        "WarningPreference",
+        "InformationPreference",
+        "DebugPreference"
+    ],
+    "StringsToIgnore": [],
+    "NumbersToIgnore": [0, 1]
+}

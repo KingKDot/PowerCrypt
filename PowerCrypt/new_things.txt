@@ -1,10 +1,6 @@
-NamedAttributeArgumentAst
-ParamBlockAst
-ScriptBlockAst
-AttributeAst
-BinaryExpressionAst
-HashtableAst
-CommandAst
-AssignmentStatementAst
-TypeExpressionsAst
-TypeConstraintAst 
+Added:
+- Settings loading support
+- Supports file from any path
+- Should work with settings.json even if it is the first arg (powercrpt.exe "PathToJson")
+- Added example to readme
+- Both settings.json and readme example should be the same as settings.cs

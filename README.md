@@ -3,6 +3,44 @@
 
 The greatest powershell obfuscator ever made.
 
+# Settings.json
+I suppose you could call this a profile system but more like a config/settings system.
+You can use any .json and at any path that is readable.
+Adding settings is quite easy, all you need is a .json file that follows the below format:
+
+```json
+{
+    "PrintToScreen": true,
+    "EnablePrePass": true,
+    "InsertDecryptFunction": true,
+    "DecryptFunctionName": "DecodeAndDecompressString",
+    "ProcessExpandableStrings": true,
+    "RemoveComments": true,
+    "RemoveEmptyLines": true,
+    "ObfuscateFunctions": true,
+    "ObfuscateVariables": true,
+    "ObfuscateStrings": true,
+    "MinStringLengthToObfuscate": 3,
+    "ObfuscateNumbers": true,
+    "ObfuscateCommands": true,
+    "ObfuscateBuiltInCommands": true,
+    "ObfuscateBareWords": true,
+    "ObfuscateCommonBareWords": true,
+    "EnableControlFlowObfuscation": true,
+    "WrapWithControlFlow": true,
+    "EnableMixedBooleanArithmetic": true,
+    "FunctionNamesToIgnore": ["CheckValidationResult"],
+    "VariableNamesToIgnore": [
+        "ErrorActionPreference",
+        "VerbosePreference",
+        "WarningPreference",
+        "InformationPreference",
+        "DebugPreference"
+    ],
+    "StringsToIgnore": [],
+    "NumbersToIgnore": [0, 1]
+}
+```
 
 ## Quick Start
 
