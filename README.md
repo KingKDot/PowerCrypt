@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # PowerCrypt
 
@@ -39,3 +40,40 @@ After: \
 ## Authors
 
 - [@KingKDot](https://www.github.com/KingKDot)
+=======
+# PowerCrypt
+
+PowerCrypt is a cross-platform .NET command-line tool for obfuscating PowerShell
+scripts.
+
+## Requirements
+
+- .NET 8 SDK for building from source
+- Linux, macOS, or Windows
+
+## Run from source
+
+```bash
+dotnet run --project PowerCrypt/PowerCrypt.csproj -- input.ps1
+```
+
+To choose the output file:
+
+```bash
+dotnet run --project PowerCrypt/PowerCrypt.csproj -- input.ps1 output_obf.ps1
+```
+
+## Publish for Linux
+
+Create a self-contained Linux x64 build:
+
+```bash
+dotnet publish PowerCrypt/PowerCrypt.csproj -c Release -r linux-x64 -o artifacts/publish/linux-x64
+```
+
+Run the published binary:
+
+```bash
+./artifacts/publish/linux-x64/PowerCrypt input.ps1
+```
+>>>>>>> 773c115 (linux support)

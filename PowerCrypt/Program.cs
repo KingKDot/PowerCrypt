@@ -51,8 +51,7 @@ namespace PowerCrypt
 
             AnsiConsole.MarkupLine("[bold green]Obfuscation complete![/]");
 
-            //write the content out as the file name + _obf.ps1
-            var obf_file = file_location.Replace(".ps1", "_obf.ps1");
+            var obf_file = GetDefaultOutputPath(file_location);
 
             if (!string.IsNullOrEmpty(outputLocation))
             {
@@ -75,6 +74,15 @@ namespace PowerCrypt
 
             AnsiConsole.Write(obf_textpath);
             Console.WriteLine("\n");
+        }
+
+        private static string GetDefaultOutputPath(string inputPath)
+        {
+            var directory = Path.GetDirectoryName(inputPath);
+            var fileName = Path.GetFileNameWithoutExtension(inputPath);
+            var extension = Path.GetExtension(inputPath);
+
+            return Path.Combine(directory ?? string.Empty, $"{fileName}_obf{extension}");
         }
     }
 }
