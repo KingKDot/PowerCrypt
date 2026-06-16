@@ -1,16 +1,27 @@
-name: .NET Windows Release
+name: .NET Release
 
 on:
   push:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            rid: win-x64
+            package_name: PowerCrypt-windows-x64.zip
+          - name: Linux x64
+            os: ubuntu-latest
+            rid: linux-x64
+            package_name: PowerCrypt-linux-x64.tar.gz
 
     steps:
       - name: Checkout Repository
@@ -19,59 +30,55 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.0.x"
+          dotnet-version: "8.0.x"
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore PowerCrypt/PowerCrypt.csproj
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build PowerCrypt/PowerCrypt.csproj --no-restore --configuration Release
 
       - name: Publish
-        run: dotnet publish --configuration Release --self-contained true -r win-x86 -p:PublishSingleFile=true -p:EnableReadyToRun=true -o publish_output
+        run: dotnet publish PowerCrypt/PowerCrypt.csproj --configuration Release --runtime ${{ matrix.rid }} --output publish/${{ matrix.rid }}
 
-      - name: Find Published Executable
+      - name: Package Windows Build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path publish/${{ matrix.rid }}/* -DestinationPath ${{ matrix.package_name }} -Force
+
+      - name: Package Linux Build
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
-          $exe_path = Get-ChildItem -Path publish_output -Filter "*.exe" | Select-Object -ExpandProperty FullName
-          echo "Executable Path: $exe_path"
-          echo "EXE_PATH=$exe_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          chmod +x publish/${{ matrix.rid }}/PowerCrypt
+          tar -czf ${{ matrix.package_name }} -C publish/${{ matrix.rid }} .
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build
-          path: publish_output/
+          name: ${{ matrix.rid }}
+          path: ${{ matrix.package_name }}
 
-      # delete
-      - name: Delete old AutoBuild release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
+  release:
+    name: Publish AutoBuild Release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
         with:
-          tag_name: AutoBuild
-          delete_release: true
+          path: release-assets
+          merge-multiple: true
+
+      - name: Replace AutoBuild Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # we need release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: AutoBuild
-          release_name: AutoBuild
-          body: "Automated Build Release"
-          draft: false
-          prerelease: false
-
-      # upload
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.EXE_PATH }}
-          asset_name: PowerCrypt.exe
-          asset_content_type: application/octet-stream
+        run: |
+          gh release delete AutoBuild --cleanup-tag --yes || true
+          gh release create AutoBuild release-assets/* \
+            --title "AutoBuild" \
+            --notes "Automated Windows and Linux builds." \
+            --target "${{ github.sha }}"
